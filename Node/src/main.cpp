@@ -68,6 +68,7 @@ const char* NodeID = "Node1";   // Node ID
 #define RFM95_CS     LORA_CS    // LoRa radio chip select pin
 #define RFM95_INT    LORA_IRQ    // LoRa radio interrupt pin
 #define LED          LED_BUILTIN
+#define BATTERY_ADC  A7
 
 
 // LoRa radio frequency, use the correct frequency for your region
@@ -170,7 +171,7 @@ void loop() {
     measuredvbat /= 1024; // convert to voltage
     Bat = measuredvbat;
   */
-  Bat = 4.5; // demo battery value for testing
+  Bat = analogRead(BATTERY_ADC) * 2 * 3.3 / 4095 ; // demo battery value for testing
 
   // convert doubles to char-string
   dtostrf(distance, 1, 0, Dstr);
