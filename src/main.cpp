@@ -94,16 +94,16 @@ int RPDelay = 2000;  // Delay to avoid TX message collision. MIN 2 SEC, MAX 6. U
 
 // ******************** Required Libraries **********************//
 #include <RH_RF95.h>      // LoRa radio, 100k
-#include "SSD1306.h"      // OLED Display
-#include "EEPROM.h"
+#include <SSD1306.h>      // OLED Display
+#include <EEPROM.h>
 #include <AsyncTCP.h>     //40k
-#include "ESPAsyncWebServer.h"  // 30k
+#include <ESPAsyncWebServer.h>  // 30k
 
 #include <WiFi.h>         // esp32 Wifi driver
 
-#include "Adafruit_MQTT.h"
-#include "Adafruit_MQTT_Client.h"  // 30k
-#include "esp_system.h"
+#include <Adafruit_MQTT.h>
+#include <Adafruit_MQTT_Client.h>  // 30k
+#include <esp_system.h>
 
 
 // *************** Flash Variables class definition *******************//
@@ -158,7 +158,7 @@ class FLASHvariables
   #define RFM95_RST     LORA_RST
   #define RFM95_CS      LORA_CS
   #define RFM95_INT     LORA_IRQ           //TTGO V1:2, TTGO V2:25, TBeam:14
-  #define BUTTON_A      0             //setup AP initialise button
+  #define BUTTON_A      KEY_BUILTIN        //setup AP initialise button
   #define Type "TTV2"
   SSD1306 display(0x3c, OLED_SDA, OLED_SCL);      //TTGO VER 2.1.6 and TBeam OLED Display SDA = pin 21, SCL = pin 22, RESET = pin 16
 
@@ -212,6 +212,7 @@ void mqttSubscribe();
 void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(115200);
+  while(!Serial);
   delay(200);
 
   // digitalWrite(BUTTON_A, LOW);      // set Button A low
