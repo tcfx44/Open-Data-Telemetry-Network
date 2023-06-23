@@ -153,17 +153,16 @@ class FLASHvariables
   #define Type "TTV1"
   SSD1306 display(0x3c, 4, 15);     // TTGO VER 1.0 // OLED Display SDA = pin 4, SCL = pin 15, RESET = pin 16
 */
-/*
-  //TTGO Version 1.6
-  #define RFM95_RST     23
-  #define RFM95_CS      18
-  #define RFM95_INT     26
-  #define LED_BUILTIN   25            //TTGO V1:2, TTGO V2:25, TBeam:14
-  #define BUTTON_A      2             //setup AP initialise button
-  #define Type "TTV2"
-  SSD1306 display(0x3c, 21, 22);      //TTGO VER 2.1.6 and TBeam OLED Display SDA = pin 21, SCL = pin 22, RESET = pin 16
-*/
 
+  //TTGO Version 1.6
+  #define RFM95_RST     LORA_RST
+  #define RFM95_CS      LORA_CS
+  #define RFM95_INT     LORA_IRQ           //TTGO V1:2, TTGO V2:25, TBeam:14
+  #define BUTTON_A      0             //setup AP initialise button
+  #define Type "TTV2"
+  SSD1306 display(0x3c, OLED_SDA, OLED_SCL);      //TTGO VER 2.1.6 and TBeam OLED Display SDA = pin 21, SCL = pin 22, RESET = pin 16
+
+/*
 //TTGO TBeam Version 1.0
 #define RFM95_RST 23
 #define RFM95_CS  18
@@ -172,11 +171,15 @@ class FLASHvariables
 #define BUTTON_A 39               //setup AP initialise button
 #define Type "TTV3"
 SSD1306 display(0x3c, 21, 22);    //TTGO VER 2.1.6 and TBeam OLED Display SDA = pin 21, SCL = pin 22, RESET = pin 16
-
+*/
 /*******************************************************************************************/
 
 
-#define RF95_FREQ 915.          // Set LoRa radio frequency
+// Set LoRa radio frequency
+
+//#define RF95_FREQ    433
+#define RF95_FREQ    868
+//#define RF95_FREQ    915
 
 
 /****************************** Load drivers ***************************************/
@@ -196,7 +199,14 @@ Adafruit_MQTT_Publish pubmessage = Adafruit_MQTT_Publish(&mqtt, MQTT_TOPIC "/Gat
 Adafruit_MQTT_Publish pubstatus = Adafruit_MQTT_Publish(&mqtt, MQTT_TOPIC "/Status/"GWID);
 Adafruit_MQTT_Subscribe control = Adafruit_MQTT_Subscribe(&mqtt, MQTT_TOPIC "/Control/"GWID);
 
-
+void APSetup();
+void Repeater();
+void Gateway();
+void Monitor();
+void GWConnect();
+void gatewayStatus();
+void sendTest();
+void mqttSubscribe();
 
 /**************************** SETUP SECTION ***************************/
 void setup() {
@@ -208,10 +218,10 @@ void setup() {
   pinMode(BUTTON_A, INPUT_PULLUP);
 
   // Initialising the the OLED display
-  pinMode(16, OUTPUT);
-  digitalWrite(16, LOW);      // set GPIO16 low to reset OLED
-  delay(50);
-  digitalWrite(16, HIGH);     // while OLED is running, must set GPIO16 in high、
+  // pinMode(16, OUTPUT);
+  // digitalWrite(16, LOW);      // set GPIO16 low to reset OLED
+  // delay(50);
+  // digitalWrite(16, HIGH);     // while OLED is running, must set GPIO16 in high、
   display.init();
   display.flipScreenVertically();
   display.setFont(ArialMT_Plain_10);
@@ -496,7 +506,7 @@ void Gateway() {
           sendTest();           // Send LoRa status
           delay(100);
           gatewayStatus();      // Send MQTT status
-          Found = '\0'; //clear "Found" char value
+          Found = "\0"; //clear "Found" char value
         }
 
         // Create MQTT Message...
@@ -1206,7 +1216,7 @@ void Repeater() {
           display.drawString(0, 35, "RSSI:");
           display.drawString(50 , 35 , Rstr);
           display.display();
-          Found = '\0'; //clear "Found" char value
+          Found = "\0"; //clear "Found" char value
           memset(Rbuffer, '\0', sizeof(Rbuffer)); //reset buffer to clear pervious messages
           delay(10);
           delay(1500);
