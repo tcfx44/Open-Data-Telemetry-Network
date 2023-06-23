@@ -62,14 +62,14 @@ char* NodeID = "Node1";   // Node ID
 */
 
 // Settings for Adafruit featherM0 LoRa RFM95 SPI
-#define RFM95_RST    4    // LoRa radio reset pin
-#define RFM95_CS     8    // LoRa radio chip select pin
-#define RFM95_INT    3    // LoRa radio interrupt pin
-#define LED          13
+#define RFM95_RST    LORA_RST    // LoRa radio reset pin
+#define RFM95_CS     LORA_CS    // LoRa radio chip select pin
+#define RFM95_INT    LORA_IRQ    // LoRa radio interrupt pin
+#define LED          LED_BUILTIN
 
 
 // LoRa radio frequency, use the correct frequency for your region
-#define RF95_FREQ 915.0
+#define RF95_FREQ 868.0
 
 
 // wd variables told hold string values
@@ -90,9 +90,8 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);        // load radiohead driver instance of t
 
 
 void setup() {
-
-  while (!Serial);   // Serial usb connection to show diagnostic data, comment out (//) when usb serial is not connected as the code will halt at this point
   Serial.begin(115200);    //set baud rate for the hardware serial port_0
+  while (!Serial);   // Serial usb connection to show diagnostic data, comment out (//) when usb serial is not connected as the code will halt at this point
   delay(100);
 
   Serial.println("Serial Started");
