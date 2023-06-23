@@ -195,9 +195,9 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, MQTT_SERVERPORT, MQTT_USERNAME, 
 /***************************** MQTT Queue Config **********************************/
 
 // Notice MQTT paths for Adafruit AIO follow the form: <username>/feeds/<feedname>
-Adafruit_MQTT_Publish pubmessage = Adafruit_MQTT_Publish(&mqtt, MQTT_TOPIC "/Gateway/"GWID);
-Adafruit_MQTT_Publish pubstatus = Adafruit_MQTT_Publish(&mqtt, MQTT_TOPIC "/Status/"GWID);
-Adafruit_MQTT_Subscribe control = Adafruit_MQTT_Subscribe(&mqtt, MQTT_TOPIC "/Control/"GWID);
+Adafruit_MQTT_Publish pubmessage = Adafruit_MQTT_Publish(&mqtt, MQTT_TOPIC "/Gateway/" GWID);
+Adafruit_MQTT_Publish pubstatus = Adafruit_MQTT_Publish(&mqtt, MQTT_TOPIC "/Status/" GWID);
+Adafruit_MQTT_Subscribe control = Adafruit_MQTT_Subscribe(&mqtt, MQTT_TOPIC "/Control/" GWID);
 
 void APSetup();
 void Repeater();
@@ -257,7 +257,7 @@ void setup() {
   display.clear();
   display.drawString(0, 0, "LoRa MQTT Gateway");
   display.drawString(0, 10, "Gateway ID: " GWID);
-  display.drawString(0, 20, "Version: "Version);
+  display.drawString(0, 20, "Version: " Version);
   display.display();
   delay(4000);
   display.drawString(0, 35, "STARTING..");
@@ -383,8 +383,8 @@ void setup() {
 
 // ****** wd variables told hold gateway values *********
 char Gbuffer[100];
-char* autoReply = "TTMon";             // Monitor Keyword for auto reply
-char* Statstr = "OK";                  // holds status string value used to indicate power fail if implemented
+const char* autoReply = "TTMon";             // Monitor Keyword for auto reply
+const char* Statstr = "OK";                  // holds status string value used to indicate power fail if implemented
 char Uptime[6];                        // holds uptime string value
 char Rstr[4];                          // holds RSSI string value
 int RS;                                // holds RSSI value
@@ -398,7 +398,6 @@ int value = 0;
 // ****** wd variables told hold repeater values *********
 char Rbuffer[50];
 char Bstr[4];           // Battery Voltage
-char* Found;            // Checks for this repeater ID to avoid endless loops and monitor message keyword.
 
 int counter1 = 0; // Wifi connect reset counter 1
 int counter2 = 0; // MQTT connect reset counter 2
@@ -489,9 +488,7 @@ void Gateway() {
         display.drawString(0, 15, (char*)buf);
         display.display();
 
-        Found = strstr((char*)buf, autoReply); // check for message from a monitor node and auto reply
-
-        if (Found != NULL) {
+        if (strstr((char*)buf, autoReply) != NULL) {
           Serial.println(F("Monitor message received, sending auto reply"));
           Serial.println();
           display.clear();
@@ -507,7 +504,6 @@ void Gateway() {
           sendTest();           // Send LoRa status
           delay(100);
           gatewayStatus();      // Send MQTT status
-          Found = "\0"; //clear "Found" char value
         }
 
         // Create MQTT Message...
@@ -1181,9 +1177,7 @@ void Repeater() {
         RS = rf95.lastRssi();
         dtostrf(RS, 1, 0, Rstr);
 
-        Found = strstr((char*)buf, RPID); //check for looped message
-
-        if (Found != NULL) {
+        if (strstr((char*)buf, RPID) != NULL) {
           Serial.println(F("This repeater ID found, dropping message")); //Do not send
           Serial.println();
           display.clear();
@@ -1217,10 +1211,8 @@ void Repeater() {
           display.drawString(0, 35, "RSSI:");
           display.drawString(50 , 35 , Rstr);
           display.display();
-          Found = "\0"; //clear "Found" char value
           memset(Rbuffer, '\0', sizeof(Rbuffer)); //reset buffer to clear pervious messages
-          delay(10);
-          delay(1500);
+          //delay(50);
           digitalWrite(LED_BUILTIN, LOW);
         }
       }
@@ -1261,22 +1253,9 @@ void Repeater() {
       display.drawString(0, 15, "Send Status");
       display.drawString(0, 25, SNodeID);
       display.display();
-      delay(2000);
       Serial.print(F("Send Status: "));
       Serial.println(Rbuffer);
     }
-
-    // Print out some dots...
-    uint8_t dot;
-    dot++;
-    //Serial.print(F("."));
-    if (dot == 80) {
-      dot = 0;
-      //Serial.println(F("."));
-      digitalWrite(LED_BUILTIN, HIGH);
-      delay(100);
-    }
-    digitalWrite(LED_BUILTIN, LOW);
   }
 }
 

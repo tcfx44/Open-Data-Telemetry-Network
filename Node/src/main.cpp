@@ -29,7 +29,9 @@
 #include <RH_RF95.h>      // Radiohead LoRa library
 // #include <HCSR04.h>    // Ultrasonic distance sensor
 
-char* NodeID = "Node1";   // Node ID
+#include <SSD1306.h>
+
+const char* NodeID = "Node1";   // Node ID
 
 #define PWRLOOP 10        // test loop 1 sec count for sending data
 
@@ -88,6 +90,7 @@ RH_RF95 rf95(RFM95_CS, RFM95_INT);        // load radiohead driver instance of t
 
 // UltraSonicDistanceSensor distanceSensor(6, 5);  // Initialize the HCSR04 sensor that uses digital pins (trig, echo).
 
+SSD1306 display(0x3c, OLED_SDA, OLED_SCL); 
 
 void setup() {
   Serial.begin(115200);    //set baud rate for the hardware serial port_0
@@ -97,6 +100,10 @@ void setup() {
   Serial.println("Serial Started");
 
   pinMode(LED, OUTPUT);         // initialize digital pin as an output.
+
+  display.init();
+  display.flipScreenVertically();
+  display.setFont(ArialMT_Plain_10);
 
   pinMode(RFM95_RST, OUTPUT);
   digitalWrite(RFM95_RST, HIGH);
@@ -142,6 +149,7 @@ static char *dtostrf (double val, signed char width, unsigned char prec, char *s
 }
 #endif
 
+int packetNum;
 
 void loop() {
   // Power Up and Start Sensors
@@ -169,13 +177,22 @@ void loop() {
   dtostrf(Bat, 1, 2, Bstr);
 
   // create outgoing LoRa message in "buffer"
-  sprintf(buffer, "%s,%s,%s", NodeID, Dstr, Bstr);
+  sprintf(buffer, "%s,%s,%s,Pack: %d", NodeID, Dstr, Bstr, packetNum++);
 
   // send buffer message and length to radio
   sendLen = strlen(buffer);
   rf95.send((uint8_t *) buffer, sendLen);
   rf95.waitPacketSent();
   rf95.sleep();
+
+  display.clear();
+  display.setTextAlignment(TEXT_ALIGN_LEFT);
+  display.drawString(0, 0, buffer);
+  display.display();
+
+  digitalWrite(LED, HIGH);
+  delay(50);
+  digitalWrite(LED, LOW);
 
   // wd serial diagnostics
   Serial.println("  ......... Message Data ...........  " );
@@ -187,19 +204,8 @@ void loop() {
   Serial.print("Send Length: "); Serial.println(sendLen);
   Serial.println("  ....................  " );
   Serial.println();
-  delay(100);
-
-  // To entering low power sleep mode or wait loop
-  Serial.println("Wait Loop");
-
-  uint8_t i;
-  for (i = 0; i < PWRLOOP; i++) {
-    delay(1000);
-    Serial.print(i); Serial.println(",");
-    digitalWrite(LED, HIGH);
-    delay(50);
-    digitalWrite(LED, LOW);
-  }
+  
+  delay(1000);
 }
 
 // FILE END
